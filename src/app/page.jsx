@@ -1,12 +1,10 @@
+import Logo from '../components/Logo';
+
 export default function Home() {
   return (
     <section className="bg-beige min-h-screen flex flex-col items-center justify-center text-center p-6">
       {/* Logo */}
-      <img
-        src="/logo.png"
-        alt="Lotus Living Logo"
-        className="w-100 h-100 mb-0"
-      />
+      <Logo className="w-100 h-100 mb-0" />
 
       {/* Heading */}
       <h1 className="text-terracotta font-heading text-5xl mb-4"></h1>
