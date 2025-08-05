@@ -1,11 +1,11 @@
-import Link from 'next/link';
-import Logo from './Logo';
+import Link from "next/link";
+import { WhiteLogo } from "./Logo";
 
 export default function NavBar() {
   return (
     <nav className="bg-softgreen text-white p-4 flex items-center justify-between font-heading">
       <Link href="/">
-        <Logo className="h-8 w-auto" />
+        <WhiteLogo className="h-8 w-auto" />
       </Link>
       <ul className="flex gap-4">
         <li>

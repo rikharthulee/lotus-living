@@ -1,12 +1,15 @@
-import NavBar from './NavBar';
-import Footer from './Footer';
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
+import "@/app/globals.css"; // or wherever your styles live
 
-export default function Layout({ children }) {
+export default function RootLayout({ children }) {
   return (
-    <>
-      <NavBar />
-      <main>{children}</main>
-      <Footer />
-    </>
+    <html lang="en">
+      <body className="flex flex-col min-h-screen">
+        <NavBar />
+        <main className="flex-grow flex flex-col">{children}</main>
+        <Footer />
+      </body>
+    </html>
   );
 }
