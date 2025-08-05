@@ -18,9 +18,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${playfair.className} ${openSans.className}`}>
-      <body className="bg-beige text-darkgreen font-body">
+      <body className="bg-beige text-darkgreen font-body flex flex-col min-h-screen">
         <NavBar />
-        <main>{children}</main>
+        <main className="flex-grow">{children}</main>
         <Footer />
       </body>
     </html>
