@@ -1,24 +1,33 @@
-import '../styles/globals.css';
+import "../styles/globals.css";
 
-import { Playfair_Display, Open_Sans } from 'next/font/google';
-import NavBar from '../components/NavBar';
-import Footer from '../components/Footer';
+import NavBar from "../components/NavBar";
+import Footer from "../components/Footer";
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '700'],
+import { Playfair_Display, Inter } from "next/font/google";
+
+const headingFont = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-heading",
 });
-const openSans = Open_Sans({ subsets: ['latin'], weight: ['400', '600'] });
+
+const bodyFont = Inter({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-body",
+});
 
 export const metadata = {
-  title: 'Lotus Living',
-  description: 'Your Home in Laos',
+  title: "Lotus Living",
+  description: "Your Home in Laos",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${playfair.className} ${openSans.className}`}>
-      <body className="bg-beige text-darkgreen font-body flex flex-col min-h-screen">
+    <html lang="en">
+      <body
+        className={`${headingFont.variable} ${bodyFont.variable} font-body flex flex-col min-h-screen`}
+      >
         <NavBar />
         <main className="flex-grow">{children}</main>
         <Footer />

@@ -7,7 +7,7 @@ export default function NavBar() {
       <Link href="/">
         <WhiteLogo className="h-8 w-auto" />
       </Link>
-      <ul className="flex gap-4">
+      <ul className="font-body flex gap-4">
         <li>
           <Link href="/listings">Listings</Link>
         </li>

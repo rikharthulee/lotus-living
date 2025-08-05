@@ -7,7 +7,7 @@ export default function Home() {
         <Logo className="w-full h-full drop-shadow-md" />
       </div>
 
-      <p className="text-darkgreen font-body text-base sm:text-lg max-w-md sm:max-w-xl">
+      <p className="font-bodytext-darkgreen font-body text-base sm:text-lg max-w-md sm:max-w-xl">
         Your Home in Laos — Find beautiful properties and rentals with ease.
       </p>
 
