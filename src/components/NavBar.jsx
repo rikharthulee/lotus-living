@@ -3,11 +3,11 @@ import Logo from './Logo';
 
 export default function NavBar() {
   return (
-    <nav>
+    <nav className="bg-softgreen text-white p-4 flex items-center justify-between font-heading">
       <Link href="/">
-        <Logo />
+        <Logo className="h-8 w-auto" />
       </Link>
-      <ul>
+      <ul className="flex gap-4">
         <li>
           <Link href="/listings">Listings</Link>
         </li>
