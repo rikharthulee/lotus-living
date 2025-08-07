@@ -7,16 +7,22 @@ export async function POST(req) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "your-email@gmail.com", // YOUR email
-      pass: "your-app-password", // App password from Google
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
   const mailOptions = {
-    from: email,
-    to: "your-email@gmail.com", // YOUR email again
+    from: process.env.EMAIL_USER, // ✅ YOU as the sender
+    to: process.env.EMAIL_USER, // ✅ Send it to yourself
+    replyTo: email, // ✅ So you can reply to the user
     subject: `New Contact Form Submission from ${name}`,
-    text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nMessage:\n${message}`,
+    text: `Name: ${name}
+    Email: ${email}
+    Phone: ${phone}
+
+    Message:
+    ${message}`,
   };
 
   try {
