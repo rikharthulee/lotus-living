@@ -1,12 +1,21 @@
-import listings from "@/data/listings";
 import PropertyCard from "@/components/PropertyCard";
+import { supabase } from "@/lib/supabase";
 
 export const metadata = {
   title: "Listings • Lotus Living",
   description: "Browse properties across Laos",
 };
 
-export default function ListingsPage() {
+export default async function ListingsPage() {
+  const { data: listings, error } = await supabase
+    .from("properties")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error(error);
+  }
+
   return (
     <section className="mx-auto max-w-6xl px-4 py-8">
       <header className="mb-6">
@@ -16,9 +25,13 @@ export default function ListingsPage() {
 
       {/* Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {listings.map((item) => (
-          <PropertyCard key={item.id} item={item} />
-        ))}
+        {listings && listings.length ? (
+          listings.map((item) => (
+            <PropertyCard key={item.id} item={item} />
+          ))
+        ) : (
+          <p>No properties found.</p>
+        )}
       </div>
     </section>
   );
