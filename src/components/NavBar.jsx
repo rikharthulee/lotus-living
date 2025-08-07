@@ -9,6 +9,12 @@ export default function NavBar() {
       </Link>
       <ul className="font-body flex gap-4">
         <li>
+          <Link href="/">Home</Link>
+        </li>
+        <li>
+          <Link href="/login">Log-In</Link>
+        </li>
+        <li>
           <Link href="/listings">Listings</Link>
         </li>
         <li>
