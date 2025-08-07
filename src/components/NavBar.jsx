@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { WhiteLogo } from "./Logo";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function NavBar() {
   const [session, setSession] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -34,9 +36,21 @@ export default function NavBar() {
           <Link href="/">Home</Link>
         </li>
         {session ? (
-          <li>
-            <Link href="/dashboard">Dashboard</Link>
-          </li>
+          <>
+            <li>
+              <Link href="/dashboard">Dashboard</Link>
+            </li>
+            <li>
+              <button
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  router.push("/");
+                }}
+              >
+                Log Out
+              </button>
+            </li>
+          </>
         ) : (
           <li>
             <Link href="/login">Log-in / Sign-Up</Link>
