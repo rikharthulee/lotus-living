@@ -9,9 +9,18 @@ export default function DashboardPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [bedrooms, setBedrooms] = useState("");
+  const [bathrooms, setBathrooms] = useState("");
+  const [propertyType, setPropertyType] = useState("House");
+  const [rentSale, setRentSale] = useState("rent");
+
+  const [location, setLocation] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -27,7 +36,6 @@ export default function DashboardPage() {
       setSuccessMsg("");
       setImagePreviewUrl("");
 
-      // ✅ Get session and user
       const {
         data: { session },
         error: sessionError,
@@ -40,27 +48,15 @@ export default function DashboardPage() {
       }
 
       const user = session.user;
-      const bucket = "images"; // ✅ make sure this matches your real bucket name
-
-      // ✅ Log the file to debug
-      console.log("Uploading file:", file);
-
-      // ✅ Generate hardcoded safe path
+      const bucket = "images";
       const filePath = `test/${Date.now()}-${file.name}`;
-      console.log("File path:", filePath);
 
-      // ✅ Upload to Supabase Storage
       const { data: uploadedFile, error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(filePath, file);
 
-      // ✅ Log error if failed
-      if (uploadError) {
-        console.error("Upload failed:", uploadError);
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
-      // ✅ Get public URL
       const { data: urlData } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
@@ -68,12 +64,18 @@ export default function DashboardPage() {
       const publicUrl = urlData?.publicUrl;
       if (!publicUrl) throw new Error("Failed to get public image URL");
 
-      // ✅ Insert into properties table
       const { error: insertError } = await supabase.from("properties").insert({
         user_id: user.id,
         title,
         description,
         price: parseFloat(price),
+        bedrooms: parseInt(bedrooms),
+        bathrooms: parseInt(bathrooms),
+        property_type: propertyType,
+        rent_sale: rentSale,
+        location,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
         image_url: publicUrl,
       });
 
@@ -81,9 +83,18 @@ export default function DashboardPage() {
 
       setSuccessMsg("Property uploaded successfully!");
       setImagePreviewUrl(publicUrl);
+
+      // Reset form
       setTitle("");
       setDescription("");
       setPrice("");
+      setBedrooms("");
+      setBathrooms("");
+      setPropertyType("House");
+      setRentSale("rent");
+      setLocation("");
+      setLatitude("");
+      setLongitude("");
       setFile(null);
     } catch (err) {
       setErrorMsg(err.message || "Upload failed.");
@@ -117,6 +128,66 @@ export default function DashboardPage() {
           value={price}
           onChange={(e) => setPrice(e.target.value)}
         />
+        <input
+          type="number"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          placeholder="Bedrooms"
+          className="w-full border px-4 py-2"
+          value={bedrooms}
+          onChange={(e) => setBedrooms(e.target.value)}
+        />
+        <input
+          type="number"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          placeholder="Bathrooms"
+          className="w-full border px-4 py-2"
+          value={bathrooms}
+          onChange={(e) => setBathrooms(e.target.value)}
+        />
+        <select
+          className="w-full border px-4 py-2"
+          value={propertyType}
+          onChange={(e) => setPropertyType(e.target.value)}
+        >
+          <option value="House">House</option>
+          <option value="Apartment">Apartment</option>
+        </select>
+
+        <select
+          className="w-full border px-4 py-2"
+          value={rentSale}
+          onChange={(e) => setRentSale(e.target.value)}
+        >
+          <option value="rent">For Rent</option>
+          <option value="sale">For Sale</option>
+        </select>
+
+        <input
+          type="text"
+          placeholder="Location"
+          className="w-full border px-4 py-2"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+        />
+        <input
+          type="number"
+          step="any"
+          placeholder="Latitude"
+          className="w-full border px-4 py-2"
+          value={latitude}
+          onChange={(e) => setLatitude(e.target.value)}
+        />
+        <input
+          type="number"
+          step="any"
+          placeholder="Longitude"
+          className="w-full border px-4 py-2"
+          value={longitude}
+          onChange={(e) => setLongitude(e.target.value)}
+        />
+
         <input
           type="file"
           accept="image/*"
