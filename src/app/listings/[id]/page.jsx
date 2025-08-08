@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useParams } from "next/navigation";
-import { FaBed, FaBath, FaMap } from "react-icons/fa";
+import Link from "next/link";
 
 export default function ListingPage() {
   const { id } = useParams();
@@ -17,40 +17,68 @@ export default function ListingPage() {
         .select("*")
         .eq("id", id)
         .single();
-
-      if (error) setError("Listing not found.");
+      if (error) setError("Could not load listing");
       else setListing(data);
     };
-
-    if (id) fetchListing();
+    fetchListing();
   }, [id]);
 
-  if (error) return <p className="mt-12 text-center text-red-600">{error}</p>;
-  if (!listing) return <p className="mt-12 text-center">Loading...</p>;
+  if (error) return <p className="px-4 sm:px-6 py-6">{error}</p>;
+  if (!listing) return <p className="px-4 sm:px-6 py-6">Loading…</p>;
 
   return (
-    <section className="max-w-xl mx-auto mt-12 space-y-6">
-      <img
-        src={listing.image_url}
-        alt={listing.title}
-        className="w-full h-64 object-cover rounded"
-      />
-      <h1 className="text-3xl font-bold">{listing.title}</h1>
-      <p className="text-xl font-semibold">
-        <span className="flex items-center gap-2">
-          <FaMap />
-          {listing.location} - {listing.property_type} for {listing.rent_sale}
-        </span>
-      </p>
-      <p className="text-xl font-semibold"></p>
-      <p>{listing.description}</p>
-      <p className="text-xl font-semibold text-green-600">${listing.price}</p>
-      <span className="flex items-center gap-2 text-xl">
-        <FaBed /> {listing.bedrooms}
-      </span>
-      <span className="flex items-center gap-2 text-xl">
-        <FaBath /> {listing.bathrooms}
-      </span>
+    <section className="max-w-screen-xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <Link href="/listings" className="text-sm underline">
+        ← Back to listings
+      </Link>
+
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg overflow-hidden border border-beige/60">
+          <div className="aspect-video w-full bg-beige">
+            <img
+              src={listing.image_url}
+              alt={listing.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl sm:text-3xl font-heading leading-tight">
+            {listing.title}
+          </h1>
+
+          <p className="text-darkgreen/80">{listing.location}</p>
+
+          {listing.description && (
+            <p className="text-base sm:text-lg">{listing.description}</p>
+          )}
+
+          <p className="text-xl sm:text-2xl font-bold text-green-700">
+            {listing.currency || "$"}
+            {listing.price}
+            {listing.rent_sale ? ` • ${listing.rent_sale}` : ""}
+          </p>
+
+          <div className="pt-2 flex flex-wrap gap-3">
+            {listing.bedrooms != null && (
+              <span className="inline-flex items-center rounded bg-beige px-3 py-1 text-sm">
+                🛏 {listing.bedrooms} bed
+              </span>
+            )}
+            {listing.bathrooms != null && (
+              <span className="inline-flex items-center rounded bg-beige px-3 py-1 text-sm">
+                🛁 {listing.bathrooms} bath
+              </span>
+            )}
+            {listing.property_type && (
+              <span className="inline-flex items-center rounded bg-beige px-3 py-1 text-sm">
+                🏠 {listing.property_type}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

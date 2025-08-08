@@ -41,52 +41,53 @@ export default function Contact() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">Contact Us</h1>
+    <section className="max-w-xl mx-auto px-4 sm:px-6 py-10 font-body">
+      <h1 className="text-2xl sm:text-3xl font-heading mb-6 text-center">
+        Contact Us
+      </h1>
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="w-full border px-4 py-2 rounded"
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="w-full border px-4 py-2 rounded"
-          required
-        />
-        <input
-          type="tel"
-          name="phone"
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-          className="w-full border px-4 py-2 rounded"
-        />
+        {[
+          { name: "name", type: "text", placeholder: "Name", required: true },
+          {
+            name: "email",
+            type: "email",
+            placeholder: "Email",
+            required: true,
+          },
+          { name: "phone", type: "tel", placeholder: "Phone Number" },
+        ].map(({ name, type, placeholder, required }) => (
+          <input
+            key={name}
+            name={name}
+            type={type}
+            placeholder={placeholder}
+            required={required}
+            value={formData[name]}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-4 py-3 bg-beige text-darkgreen/50 focus:outline-none focus:ring-2 focus:ring-softgreen"
+          />
+        ))}
+
         <textarea
           name="message"
           placeholder="Your message"
           rows={5}
+          required
           value={formData.message}
           onChange={handleChange}
-          className="w-full border px-4 py-2 rounded"
-          required
+          className="w-full border border-gray-300 rounded px-4 py-3 bg-beige text-darkgreen/50 focus:outline-none focus:ring-2 focus:ring-softgreen"
         ></textarea>
+
         <button
           type="submit"
-          className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800"
+          className="w-full bg-softgreen text-white py-3 rounded hover:bg-terracotta transition-colors font-heading"
         >
           Send
         </button>
-        {status && <p className="mt-2">{status}</p>}
+
+        {status && <p className="mt-4 text-sm text-center">{status}</p>}
       </form>
-    </div>
+    </section>
   );
 }

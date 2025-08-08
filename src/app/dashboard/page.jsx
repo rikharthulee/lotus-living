@@ -40,7 +40,6 @@ export default function DashboardPage() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-
       if (sessionError || !session?.user) {
         setErrorMsg("User not logged in.");
         setUploading(false);
@@ -48,19 +47,15 @@ export default function DashboardPage() {
       }
 
       const user = session.user;
-      const bucket = "images";
-      const filePath = `test/${Date.now()}-${file.name}`;
-
-      const { data: uploadedFile, error: uploadError } = await supabase.storage
-        .from(bucket)
+      const filePath = `uploads/${Date.now()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("images")
         .upload(filePath, file);
-
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage
-        .from(bucket)
+        .from("images")
         .getPublicUrl(filePath);
-
       const publicUrl = urlData?.publicUrl;
       if (!publicUrl) throw new Error("Failed to get public image URL");
 
@@ -84,7 +79,6 @@ export default function DashboardPage() {
       setSuccessMsg("Property uploaded successfully!");
       setImagePreviewUrl(publicUrl);
 
-      // Reset form
       setTitle("");
       setDescription("");
       setPrice("");
@@ -104,50 +98,69 @@ export default function DashboardPage() {
   };
 
   return (
-    <section className="max-w-md mx-auto mt-12 space-y-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+    <section className="max-w-xl mx-auto px-4 sm:px-6 py-10 font-body">
+      <h1 className="text-2xl sm:text-3xl font-heading mb-6">Add a Property</h1>
 
       <form onSubmit={handleUpload} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Title"
-          className="w-full border px-4 py-2"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <textarea
-          placeholder="Description"
-          className="w-full border px-4 py-2"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          className="w-full border px-4 py-2"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
-        <input
-          type="number"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          placeholder="Bedrooms"
-          className="w-full border px-4 py-2"
-          value={bedrooms}
-          onChange={(e) => setBedrooms(e.target.value)}
-        />
-        <input
-          type="number"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          placeholder="Bathrooms"
-          className="w-full border px-4 py-2"
-          value={bathrooms}
-          onChange={(e) => setBathrooms(e.target.value)}
-        />
+        {[
+          { label: "Title", value: title, setValue: setTitle },
+          {
+            label: "Description",
+            value: description,
+            setValue: setDescription,
+            textarea: true,
+          },
+          { label: "Price", value: price, setValue: setPrice, type: "number" },
+          {
+            label: "Bedrooms",
+            value: bedrooms,
+            setValue: setBedrooms,
+            type: "number",
+          },
+          {
+            label: "Bathrooms",
+            value: bathrooms,
+            setValue: setBathrooms,
+            type: "number",
+          },
+          { label: "Location", value: location, setValue: setLocation },
+          {
+            label: "Latitude",
+            value: latitude,
+            setValue: setLatitude,
+            type: "number",
+            step: "any",
+          },
+          {
+            label: "Longitude",
+            value: longitude,
+            setValue: setLongitude,
+            type: "number",
+            step: "any",
+          },
+        ].map(({ label, value, setValue, textarea, type = "text", step }, i) =>
+          textarea ? (
+            <textarea
+              key={i}
+              className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-softgreen"
+              placeholder={label}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          ) : (
+            <input
+              key={i}
+              className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-softgreen"
+              type={type}
+              step={step}
+              placeholder={label}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          )
+        )}
         <select
-          className="w-full border px-4 py-2"
+          className="w-full border border-gray-300 rounded px-4 py-3 text-darkgreen/50 focus:outline-none focus:ring-2 focus:ring-softgreen"
           value={propertyType}
           onChange={(e) => setPropertyType(e.target.value)}
         >
@@ -156,7 +169,7 @@ export default function DashboardPage() {
         </select>
 
         <select
-          className="w-full border px-4 py-2"
+          className="w-full border border-gray-300 rounded px-4 py-3 text-darkgreen/50 focus:outline-none focus:ring-2 focus:ring-softgreen"
           value={rentSale}
           onChange={(e) => setRentSale(e.target.value)}
         >
@@ -165,53 +178,30 @@ export default function DashboardPage() {
         </select>
 
         <input
-          type="text"
-          placeholder="Location"
-          className="w-full border px-4 py-2"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
-        <input
-          type="number"
-          step="any"
-          placeholder="Latitude"
-          className="w-full border px-4 py-2"
-          value={latitude}
-          onChange={(e) => setLatitude(e.target.value)}
-        />
-        <input
-          type="number"
-          step="any"
-          placeholder="Longitude"
-          className="w-full border px-4 py-2"
-          value={longitude}
-          onChange={(e) => setLongitude(e.target.value)}
-        />
-
-        <input
           type="file"
           accept="image/*"
+          className="w-full border border-gray-300 px-4 py-3 rounded text-darkgreen/50"
           onChange={(e) => setFile(e.target.files[0])}
         />
 
         <button
           type="submit"
-          className="bg-black text-white px-4 py-2"
+          className="w-full bg-softgreen text-white py-3 rounded hover:bg-terracotta transition-colors font-heading"
           disabled={uploading}
         >
           {uploading ? "Uploading..." : "Upload"}
         </button>
       </form>
 
-      {errorMsg && <p className="text-red-600">{errorMsg}</p>}
-      {successMsg && <p className="text-green-600">{successMsg}</p>}
+      {errorMsg && <p className="text-red-600 mt-4">{errorMsg}</p>}
+      {successMsg && <p className="text-green-600 mt-4">{successMsg}</p>}
 
       {imagePreviewUrl && (
-        <div>
+        <div className="mt-6">
           <img
             src={imagePreviewUrl}
             alt="Preview"
-            className="mt-4 w-full rounded"
+            className="w-full rounded shadow"
           />
         </div>
       )}
