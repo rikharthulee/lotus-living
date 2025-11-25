@@ -66,7 +66,7 @@ export default function NavBar() {
           ) : (
             <li>
               <Link href="/login" className="hover:underline">
-                Log-in / Sign-Up
+                Members
               </Link>
             </li>
           )}

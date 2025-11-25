@@ -65,7 +65,7 @@ export default function Contact() {
             required={required}
             value={formData[name]}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-4 py-3 bg-beige text-darkgreen/50 focus:outline-none focus:ring-2 focus:ring-softgreen"
+            className="w-full border back border-gray-300 rounded px-4 py-3 bg-white text-darkgreen focus:outline-none focus:ring-2 focus:ring-softgreen"
           />
         ))}
 
@@ -76,7 +76,7 @@ export default function Contact() {
           required
           value={formData.message}
           onChange={handleChange}
-          className="w-full border border-gray-300 rounded px-4 py-3 bg-beige text-darkgreen/50 focus:outline-none focus:ring-2 focus:ring-softgreen"
+          className="w-full border border-gray-300 rounded px-4 py-3 bg-white text-darkgreen focus:outline-none focus:ring-2 focus:ring-softgreen"
         ></textarea>
 
         <button
