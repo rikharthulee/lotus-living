@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
@@ -9,22 +8,31 @@ export default function ListingPage() {
   const { id } = useParams();
   const [listing, setListing] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchListing = async () => {
-      const { data, error } = await supabase
-        .from("properties")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (error) setError("Could not load listing");
-      else setListing(data);
+      try {
+        const res = await fetch(`/api/properties/${id}`);
+        if (!res.ok) {
+          throw new Error("Could not load listing");
+        }
+        const data = await res.json();
+        setListing(data);
+      } catch (err) {
+        setError(err.message || "Could not load listing");
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchListing();
+    if (id) {
+      fetchListing();
+    }
   }, [id]);
 
+  if (loading) return <p className="px-4 sm:px-6 py-6">Loading…</p>;
   if (error) return <p className="px-4 sm:px-6 py-6">{error}</p>;
-  if (!listing) return <p className="px-4 sm:px-6 py-6">Loading…</p>;
+  if (!listing) return <p className="px-4 sm:px-6 py-6">Listing not found.</p>;
 
   return (
     <section className="max-w-screen-xl mx-auto px-4 sm:px-6 py-6 sm:py-10">

@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 export default function DashboardPage() {
-  const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -21,14 +19,10 @@ export default function DashboardPage() {
   const [location, setLocation] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
-  const handleUpload = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!file) {
-      setErrorMsg("Please select a file to upload");
-      return;
-    }
 
     try {
       setUploading(true);
@@ -36,48 +30,36 @@ export default function DashboardPage() {
       setSuccessMsg("");
       setImagePreviewUrl("");
 
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-      if (sessionError || !session?.user) {
-        setErrorMsg("User not logged in.");
-        setUploading(false);
-        return;
-      }
-
-      const user = session.user;
-      const filePath = `uploads/${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("images")
-        .upload(filePath, file);
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage
-        .from("images")
-        .getPublicUrl(filePath);
-      const publicUrl = urlData?.publicUrl;
-      if (!publicUrl) throw new Error("Failed to get public image URL");
-
-      const { error: insertError } = await supabase.from("properties").insert({
-        user_id: user.id,
-        title,
-        description,
-        price: parseFloat(price),
-        bedrooms: parseInt(bedrooms),
-        bathrooms: parseInt(bathrooms),
-        property_type: propertyType,
-        rent_sale: rentSale,
-        location,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        image_url: publicUrl,
+      const res = await fetch("/api/properties", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          description,
+          price,
+          bedrooms,
+          bathrooms,
+          propertyType,
+          rentSale,
+          location,
+          latitude,
+          longitude,
+          imageUrl,
+        }),
       });
 
-      if (insertError) throw insertError;
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Failed to create property");
+      }
 
-      setSuccessMsg("Property uploaded successfully!");
-      setImagePreviewUrl(publicUrl);
+      const created = await res.json();
+      setSuccessMsg("Property saved successfully!");
+      if (created.image_url) {
+        setImagePreviewUrl(created.image_url);
+      } else if (imageUrl) {
+        setImagePreviewUrl(imageUrl);
+      }
 
       setTitle("");
       setDescription("");
@@ -89,9 +71,9 @@ export default function DashboardPage() {
       setLocation("");
       setLatitude("");
       setLongitude("");
-      setFile(null);
+      setImageUrl("");
     } catch (err) {
-      setErrorMsg(err.message || "Upload failed.");
+      setErrorMsg(err.message || "Save failed.");
     } finally {
       setUploading(false);
     }
@@ -101,7 +83,7 @@ export default function DashboardPage() {
     <section className="max-w-xl mx-auto px-4 sm:px-6 py-10 font-body">
       <h1 className="text-2xl sm:text-3xl font-heading mb-6">Add a Property</h1>
 
-      <form onSubmit={handleUpload} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {[
           { label: "Title", value: title, setValue: setTitle },
           {
@@ -159,6 +141,15 @@ export default function DashboardPage() {
             />
           )
         )}
+
+        <input
+          className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-softgreen"
+          type="url"
+          placeholder="Image URL"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
+
         <select
           className="w-full border border-gray-300 rounded px-4 py-3 text-darkgreen/50 focus:outline-none focus:ring-2 focus:ring-softgreen"
           value={propertyType}
@@ -177,19 +168,12 @@ export default function DashboardPage() {
           <option value="sale">For Sale</option>
         </select>
 
-        <input
-          type="file"
-          accept="image/*"
-          className="w-full border border-gray-300 px-4 py-3 rounded text-darkgreen/50"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
-
         <button
           type="submit"
           className="w-full bg-softgreen text-white py-3 rounded hover:bg-terracotta transition-colors font-heading"
           disabled={uploading}
         >
-          {uploading ? "Uploading..." : "Upload"}
+          {uploading ? "Saving..." : "Save Property"}
         </button>
       </form>
 

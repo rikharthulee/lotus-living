@@ -2,33 +2,10 @@
 
 import Link from "next/link";
 import { WhiteLogo } from "./Logo";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 
 export default function NavBar() {
-  const [session, setSession] = useState(null);
   const [open, setOpen] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, s) => {
-        setSession(s);
-      }
-    );
-    return () => authListener?.subscription?.unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setOpen(false);
-    router.push("/");
-  };
 
   return (
     <header className="bg-softgreen text-white sticky top-0 z-50">
@@ -50,26 +27,11 @@ export default function NavBar() {
               Contact
             </Link>
           </li>
-          {session ? (
-            <>
-              <li>
-                <Link href="/dashboard" className="hover:underline">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <button onClick={handleLogout} className="underline">
-                  Log out
-                </button>
-              </li>
-            </>
-          ) : (
-            <li>
-              <Link href="/login" className="hover:underline">
-                Members
-              </Link>
-            </li>
-          )}
+          <li>
+            <Link href="/dashboard" className="hover:underline">
+              Dashboard
+            </Link>
+          </li>
         </ul>
 
         {/* Mobile hamburger */}
@@ -122,37 +84,15 @@ export default function NavBar() {
                 Contact
               </Link>
             </li>
-            {session ? (
-              <>
-                <li>
-                  <Link
-                    onClick={() => setOpen(false)}
-                    href="/dashboard"
-                    className="block py-2"
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-                <li>
-                  <button
-                    onClick={handleLogout}
-                    className="block py-2 underline"
-                  >
-                    Log out
-                  </button>
-                </li>
-              </>
-            ) : (
-              <li>
-                <Link
-                  onClick={() => setOpen(false)}
-                  href="/login"
-                  className="block py-2"
-                >
-                  Log-in / Sign-Up
-                </Link>
-              </li>
-            )}
+            <li>
+              <Link
+                onClick={() => setOpen(false)}
+                href="/dashboard"
+                className="block py-2"
+              >
+                Dashboard
+              </Link>
+            </li>
           </ul>
         </div>
       )}

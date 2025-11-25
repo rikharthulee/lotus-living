@@ -1,21 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
 export default function ListingsPage() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     const fetchListings = async () => {
-      const { data, error } = await supabase
-        .from("properties")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (!error) setListings(data || []);
-      setLoading(false);
+      try {
+        const res = await fetch("/api/properties");
+        if (!res.ok) {
+          throw new Error("Failed to load listings");
+        }
+        const data = await res.json();
+        setListings(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setErrorMsg(err.message || "Could not load listings");
+      } finally {
+        setLoading(false);
+      }
     };
     fetchListings();
   }, []);
@@ -28,6 +34,8 @@ export default function ListingsPage() {
 
       {loading ? (
         <p>Loading…</p>
+      ) : errorMsg ? (
+        <p className="text-red-600">{errorMsg}</p>
       ) : listings.length === 0 ? (
         <p>No listings yet.</p>
       ) : (

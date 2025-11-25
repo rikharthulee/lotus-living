@@ -1,19 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg] = useState("");
 
   const handleSignup = async () => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) setErrorMsg(error.message);
-    else router.push("/dashboard");
+    console.warn("Signup not implemented; Supabase has been removed.");
   };
 
   return (
