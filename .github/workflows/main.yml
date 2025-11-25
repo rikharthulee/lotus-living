@@ -2,7 +2,7 @@ name: Deploy lotus-living to VPS
 
 on:
   push:
-    branches: [ main ]   # change if needed
+    branches: [ main ]
 
 jobs:
   deploy:
