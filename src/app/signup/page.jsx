@@ -8,7 +8,7 @@ export default function SignupPage() {
   const [errorMsg] = useState("");
 
   const handleSignup = async () => {
-    console.warn("Signup not implemented; Supabase has been removed.");
+    console.warn("Signup not implemented yet.");
   };
 
   return (

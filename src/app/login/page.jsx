@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [errorMsg] = useState("");
 
   const handleLogin = async () => {
-    console.warn("Login not implemented; Supabase has been removed.");
+    console.warn("Login not implemented yet.");
   };
 
   return (
