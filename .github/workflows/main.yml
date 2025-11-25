@@ -1,0 +1,35 @@
+name: Deploy lotus-living to VPS
+
+on:
+  push:
+    branches: [ main ]   # change if your main branch has a different name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Sync files to server
+        uses: burnett01/rsync-deployments@v8
+        with:
+          switches: -az --delete
+          path: .
+          remote_path: /var/www/lotusliving
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Build & restart app on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/lotusliving
+            npm install
+            npm run build
+            pm2 restart lotusliving || pm2 start npm --name "lotusliving" -- run start
