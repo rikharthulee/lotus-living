@@ -19,7 +19,10 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@46.224.86.159 << 'EOF'
             cd /var/www/lotusliving
-            git pull origin main
+            # always force server to match GitHub
+            git fetch origin
+            git reset --hard origin/main
+
             npm install
             npm run build
             pm2 restart lotusliving || pm2 start npm --name "lotusliving" -- run start
