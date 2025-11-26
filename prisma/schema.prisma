@@ -8,20 +8,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PropertyStatus {
+  FOR_RENT
+  FOR_SALE
+  RENTED
+  SOLD
+}
+
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model properties {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id       String   @db.Uuid
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String          @db.Uuid
+  user          User            @relation(fields: [user_id], references: [id])
   title         String
   description   String
-  price         Decimal  @db.Decimal
-  image_url     String
-  created_at    DateTime @default(now()) @db.Timestamptz(6)
-  bedrooms      Int      @default(0) @db.SmallInt
-  bathrooms     Int      @default(0) @db.SmallInt
-  property_type String?
-  location      String?
-  latitude      Decimal? @db.Decimal
-  longitude     Decimal? @db.Decimal
+  price         Decimal         @db.Decimal
+  currency      String          @default("USD")        // e.g. USD, LAK, THB
+
+  // FazWaz-style meta
+  status        PropertyStatus  @default(FOR_RENT)      // for rent, for sale, etc.
+  slug          String?         @unique                 // /listings/nice-villa-lpb
+  featured      Boolean         @default(false)         // show on homepage
+  property_type String?                                 // apartment, house, land, etc.
+
+  // Location fields
+  location      String?                                  // full address or rough description
+  city          String?                                  // e.g. "Luang Prabang"
+  district      String?                                  // optional: "Sisattanak"
+  area          String?                                  // neighbourhood / village name
+  latitude      Decimal?         @db.Decimal
+  longitude     Decimal?         @db.Decimal
+
+  // Size
+  size_sqm      Int?             @db.Integer            // internal size
+  land_sqm      Int?             @db.Integer            // land size (for houses/land)
+
+  // Media
+  image_url     String                                    // main image
+  images        Json?             @db.Json                // array of URLs for gallery
+
+  // Beds / baths
+  bedrooms      Int              @default(0) @db.SmallInt
+  bathrooms     Int              @default(0) @db.SmallInt
+
+  // Legacy field, kept temporarily for compatibility
   rent_sale     String?
+
+  // Contact
+  contact_name  String?                                 // agent / owner name
+  contact_email String?                                 // where enquiries go
+  contact_phone String?                                 // for WhatsApp etc.
+
+  created_at    DateTime          @default(now()) @db.Timestamptz(6)
+
+  @@index([user_id])
+}
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin")
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  properties properties[]
 }

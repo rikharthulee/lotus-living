@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export const runtime = "nodejs";
 
 const uuidPattern =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-const asUuidOrNew = (value) =>
-  typeof value === "string" && uuidPattern.test(value)
-    ? value
-    : randomUUID();
+const asUuidOrExisting = (value) =>
+  typeof value === "string" && uuidPattern.test(value) ? value : null;
 
 export async function GET() {
   try {
@@ -28,6 +27,11 @@ export async function GET() {
 
 export async function POST(req) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const {
       title,
@@ -41,10 +45,15 @@ export async function POST(req) {
       latitude,
       longitude,
       imageUrl,
-      userId,
     } = body;
 
-    const user_id = asUuidOrNew(userId);
+    const user_id = asUuidOrExisting(session.user.id);
+    if (!user_id) {
+      return NextResponse.json(
+        { error: "Invalid user session" },
+        { status: 401 }
+      );
+    }
     const property_type = propertyType ?? null;
     const rent_sale = rentSale ?? null;
     const property_location = location ?? null;
